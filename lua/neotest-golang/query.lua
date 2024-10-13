@@ -7,6 +7,16 @@ local testify = require("neotest-golang.features.testify")
 
 local M = {}
 
+M.test_ginkgo = [[
+    ; query for ginkgo tests
+    (call_expression
+      function: (identifier) @ginkgo_spec  (#match? @ginkgo_spec "^(Describe|Context|It)$")
+        arguments: (argument_list
+          (interpreted_string_literal) @test.name
+      ) @test.definition
+    )
+]]
+
 M.test_function = [[
     ; query for test function
     ((function_declaration
@@ -125,7 +135,7 @@ M.table_tests = [[
 --- @param file_path string
 function M.detect_tests(file_path)
   local opts = { nested_tests = true }
-  local query = M.test_function .. M.table_tests
+  local query = M.test_function .. M.table_tests .. M.test_ginkgo
 
   if options.get().testify_enabled == true then
     -- detect receiver types (as namespaces) and test methods.
